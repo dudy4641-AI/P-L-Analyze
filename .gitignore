@@ -1,0 +1,4 @@
+output/
+*.xlsx
+!templates/*.xlsx
+__pycache__/
