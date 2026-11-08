@@ -29,3 +29,20 @@ Formulas are written without cached values: open the file in Excel (it recalcula
   `Salaries Inc` / `Salaries Ltd` / `Salaries-Ltd` → `Salaries` (entity stays in its own column).
 - Vendor names differing only by case/spaces are merged; blank vendor → `(ללא ספק)`.
 Edit `ITEM_FIXES` / `DEPT_ORDER` in `build_pnl.py` to change these rules.
+
+## Streamlit app
+Upload the vendor file in the browser and get the interactive analysis plus the Excel download.
+
+```bash
+pip install -r requirements.txt
+streamlit run app.py
+```
+
+Tabs: Dashboard (filters, KPIs vs previous period, charts, top vendors/items), P&L, QoQ,
+Vendor mix (pick dept + item + entity), Data (unified rows + CSV download).
+The sidebar has the **Download P&L (Excel)** button. It builds the same workbook as `build_pnl.py`.
+
+### Deploy to Streamlit Community Cloud
+1. Push this repo to GitHub.
+2. On https://share.streamlit.io choose **New app**, then pick this repo, the branch and `app.py`.
+3. `requirements.txt` is installed automatically. Uploaded files are handled in memory and never stored.

@@ -138,6 +138,8 @@ def read_source(path):
             rows.append(dict(sheet=ws.title.strip(), month=month, q=q, y=y,
                              item_raw=item if item is not None else "",
                              vendor_raw=vendor, amt=float(amt), ent=clean(ent)))
+    if not rows:
+        raise ValueError("לא נמצאו לשוניות חודשיות בשם MM.YY (למשל 01.26) עם נתונים בטורים A-D")
     rows.sort(key=lambda d: d["month"])
     return rows, skipped
 
@@ -159,8 +161,25 @@ def vendor_names(rows):
     return names, vid
 
 
+def load_dataframe(src):
+    """the same normalised rows the workbook uses, as a pandas DataFrame"""
+    import pandas as pd
+    rows, skipped = read_source(src)
+    vendor_names(rows)
+    cache = {}
+    for r in rows:
+        if r["item_raw"] not in cache:
+            cache[r["item_raw"]] = split_item(r["item_raw"])
+        r["dept"], r["item"] = cache[r["item_raw"]]
+    df = pd.DataFrame(rows).rename(columns={"q": "quarter", "y": "year", "ent": "entity",
+                                            "amt": "amount"})
+    return df[["sheet", "month", "quarter", "year", "dept", "item", "vendor", "entity",
+               "amount", "item_raw", "vendor_raw"]], skipped
+
+
 # ----------------------------------------------------------------- build
 def build(src, out):
+    """src / out: a path or a file-like object (e.g. io.BytesIO)"""
     rows, skipped = read_source(src)
     vnames, vid = vendor_names(rows)
     mapping = OrderedDict()
